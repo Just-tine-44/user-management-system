@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
-const sendEmail = require('_helpers/send-email');
-const db = require('_helpers/db');
-const Role = require('_helpers/role');
+const sendEmail = require('_helper/send-email');
+const db = require('_helper/db');
+const Role = require('_helper/role');
 
 module.exports = {
     authenticate,
@@ -78,20 +78,27 @@ async function revokeToken({ token, ipAddress }) {
 }
 
 async function register(params, origin) {
+    // validate
     if (await db.Account.findOne({ where: { email: params.email } })) {
-        throw 'Email is already registered';
+        // send already registered error in email to prevent account enumeration
+        return await sendAlreadyRegisteredEmail(params.email, origin);
     }
 
+    // create account object
     const account = new db.Account(params);
-    account.verificationToken = randomTokenString();
 
-    // Assign first account as an admin by default
+    // first registered account is an admin
     const isFirstAccount = (await db.Account.count()) === 0;
     account.role = isFirstAccount ? Role.Admin : Role.User;
+    account.verificationToken = randomTokenString();
 
+    // hash password
     account.passwordHash = await hash(params.password);
+
+    // save account
     await account.save();
 
+    // send email
     await sendVerificationEmail(account, origin);
 }
 
@@ -108,12 +115,15 @@ async function verifyEmail({ token }) {
 async function forgotPassword({ email }, origin) {
     const account = await db.Account.findOne({ where: { email } });
 
+    // always return ok response to prevent email enumeration
     if (!account) return;
 
+    // create reset token that expires after 24 hours
     account.resetToken = randomTokenString();
-    account.resetTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+    account.resetTokenExpires = new Date(Date.now() + 24*60*60*1000);
     await account.save();
 
+    // send email
     await sendPasswordResetEmail(account, origin);
 }
 
@@ -229,32 +239,27 @@ function randomTokenString() {
 }
 
 function basicDetails(account) {
-    return {
-        id: account.id,
-        title: account.title,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        email: account.email,
-        role: account.role,
-        created: account.created,
-        updated: account.updated,
-        isVerified: account.isVerified
-    };
+    const { id, title, firstName, lastName, email, role, created, updated, isVerified } = account;
+    return { id, title, firstName, lastName, email, role, created, updated, isVerified };
 }
 
 async function sendVerificationEmail(account, origin) {
     let message;
     if (origin) {
-        const verifyUrl = `${origin}/verify-email?token=${account.verificationToken}`;
-        message = `<p><a href="${verifyUrl}">Click here</a> to verify your email address.</p>`;
+        const verifyUrl = `${origin}/account/verify-email?token=${account.verificationToken}`;
+        message = `<p>Please click the below link to verify your email address:</p>
+                   <p><a href="${verifyUrl}">${verifyUrl}</a></p>`;
     } else {
-        message = `<p>Your verification token is: ${account.verificationToken}</p>`;
+        message = `<p>Please use the below token to verify your email address with the <code>/account/verify-email</code> api route:</p>
+                   <p><code>${account.verificationToken}</code></p>`;
     }
 
     await sendEmail({
         to: account.email,
-        subject: 'Sign-up Verification API - Verify Email',
-        html: `<h4>Verify Email</h4><p>Thanks for registering!</p><p>${message}</p>`
+        subject: 'Sign-up Verification API – Verify Email',
+        html: `<h4>Verify Email</h4>
+               <p>Thanks for registering!</p>
+               ${message}`
     });
 }
 
