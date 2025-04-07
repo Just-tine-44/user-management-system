@@ -88,8 +88,8 @@ Functional testing verifies that the application behaves according to its specif
 
 - Link: https://docs.google.com/document/d/1py8yXO7MQAyqBwc9H5Sps5yMLua4tqZC8I3yo8FXwL0/edit?usp=sharing 
 
-
----
+### **Tester 2: Security Testing:** 
+- Link:https://docs.google.com/document/d/1AmGxUxdRNbDtXq9Jy1eWi0oIwgJZYxD-ZBt2RYs_4ow/edit?tab=t.0
 ### **Contributing**
 Git Workflow
 
