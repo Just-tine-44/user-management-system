@@ -3,97 +3,113 @@
 1. Introduction
 The User Management System is a robust, full-stack application designed to handle comprehensive user account management. Built with Angular for the frontend and supported by a customizable backend, it provides essential features including user registration with email verification, secure authentication using JWT tokens, role-based access control, and complete CRUD operations for user management.
 
-Features
-• User Registration & Verification: Secure signup process with email verification
-• Authentication: JWT-based authentication with refresh token support
-• Role-Based Authorization: Different access levels for users and administrators
-• Account Management: Self-service profile management for users
-• Admin Dashboard: Comprehensive tools for administrators to manage all accounts
-• Password Recovery: Forgot password and secure reset functionality
+---
+### **Features**
+- User Registration & Verification: Secure signup process with email verification
+- Authentication: JWT-based authentication with refresh token support
+- Role-Based Authorization: Different access levels for users and administrators
+- Account Management: Self-service profile management for users
+- Admin Dashboard: Comprehensive tools for administrators to manage all accounts
+- Password Recovery: Forgot password and secure reset functionality
+---
 
-2. Installation
+---
+2. ### **Installation**
 • Node.js (v14 or later)
 • Angular CLI (v10 or later)
 • Git
+---
 
-Setup Steps
-1. Clone the repository:
+---
+### **Setup Steps**
+1. **Clone the repository:**
 git clone https://github.com/Just-tine-44/user-management-system.git
 cd user-management-system 
 
-2. Install dependencies:
+2. **Install dependencies:**
 npm install
 
-3. Start the Angular application:
+3. **Start the Angular application:**
 ng serve
 
-4. Access the application at http://localhost:4200
+4. **Check:**
+Access the application at http://localhost:4200
+---
 
-Backend Options
-The system comes with a fake backend for development and testing. For production:
+---
+### **Backend Options**
+- The system comes with a fake backend for development and testing. For production:
 
-• Configure the API URL in the environment files
-• Implement a real backend service using Node.js and MySQL (see /API-Backend folder for setup)
+- Configure the API URL in the environment files
+- Implement a real backend service using Node.js and MySQL (see /API-Backend folder for setup)
+---
 
-3. Usage
+---
+3. ### **Usage**
 User Operations
 
-Registration
-    Navigate to /account/register
-    Complete the registration form with required details
-    Submit the form to receive a verification email
-    Click the verification link in the email to activate your account
+### **Registration**
+1. Navigate to /account/register
+2. Complete the registration form with required details
+3. Submit the form to receive a verification email
+4. Click the verification link in the email to activate your account
 
-Login
-    Navigate to /account/login
-    Enter your verified email and password
-    You'll be redirected to your user dashboard upon successful authentication
+### **Login**
+1. Navigate to /account/login
+2. Enter your verified email and password
+3. You'll be redirected to your user dashboard upon successful authentication
 
-Profile Management
-    Access your profile via the user menu
-    Update personal information, email, or password
-    Changes are saved immediately after submission
+### **Profile Management**
+1. Access your profile via the user menu
+2. Update personal information, email, or password
+3. Changes are saved immediately after submission
 
-Password Recovery
-    On the login page, click "Forgot Password?"
-    Enter your registered email to receive a reset link
-    Follow the link to set a new password
+### **Password Recovery**
+1. On the login page, click "Forgot Password?"
+2. Enter your registered email to receive a reset link
+3. Follow the link to set a new password
 
-Admin Operations
-Accessing Admin Dashboard
-    Login with admin credentials
-    You'll automatically be directed to the admin dashboard
-
-Managing Users
-
-The admin dashboard provides capabilities to:
-View all registered users
-Add new users
-Edit user details including roles
-Delete user accounts
-Reset user passwords
-
-4. Testing:
+### **Admin Operations**
+- Accessing Admin Dashboard
+1. Login with admin credentials
+2. You'll automatically be directed to the admin dashboard
 
 
-5. Contributing
+### **Managing Users**
+- The admin dashboard provides capabilities to:
+- View all registered users
+- Add new users
+- Edit user details including roles
+- Delete user accounts
+- Reset user passwords
+---
+
+---
+4. ### **Testing:**
+---
+
+
+---
+### **Contributing**
 Git Workflow
 
-1. Create a feature branch from main:
+1. **Create a feature branch from main:**
 git checkout -b feature/feature-name
 
-2. Make changes and commit frequently with descriptive messages:
+2. **Make changes and commit frequently with descriptive messages:**
 git commit -m "Add specific feature implementation"
 
-3. git push origin feature/feature-name
+3. **git push origin feature/feature-name:**
 git push origin feature/feature-name
 
-4. Create a Pull Request on GitHub for review and merge
+4. **Check:**
+Create a Pull Request on GitHub for review and merge
 
-6. License
+6. **License**
 This project is licensed under the MIT License - see the LICENSE file for details.
 License
 MIT License
+---
 
 ---
 ### **Best Practices**
@@ -133,10 +149,10 @@ Each team member will be evaluated individually based on:
 5. **Testing:** Thoroughness of testing and quality of test reports.
 ---
 
-Technologies Used
-• Frontend: Angular 10/17, Bootstrap, RxJS
-• Backend Options:
-    o Fake backend (included)
-    o Node.js + MySQL (configurable)
-Authentication: JWT tokens with refresh mechanism
-Deployment Options: Any static web host or containerized environment
+### **Technologies Used**
+- Frontend: Angular 10/17, Bootstrap, RxJS
+- Backend Options:
+ -  Fake backend (included)
+ - Node.js + MySQL (configurable)
+- Authentication: JWT tokens with refresh mechanism
+- Deployment Options: Any static web host or containerized environment
