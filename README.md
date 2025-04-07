@@ -18,7 +18,6 @@ The User Management System is a robust, full-stack application designed to handl
 • Node.js (v14 or later)
 • Angular CLI (v10 or later)
 • Git
----
 
 ---
 ### **Setup Steps**
@@ -34,7 +33,6 @@ ng serve
 
 4. **Check:**
 Access the application at http://localhost:4200
----
 
 ---
 ### **Backend Options**
