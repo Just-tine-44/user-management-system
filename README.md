@@ -11,7 +11,6 @@ The User Management System is a robust, full-stack application designed to handl
 - Account Management: Self-service profile management for users
 - Admin Dashboard: Comprehensive tools for administrators to manage all accounts
 - Password Recovery: Forgot password and secure reset functionality
----
 
 ---
 2. ### **Installation**
