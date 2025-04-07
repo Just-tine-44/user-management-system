@@ -42,7 +42,7 @@ Access the application at http://localhost:4200
 
 - Configure the API URL in the environment files
 - Implement a real backend service using Node.js and MySQL (see /API-Backend folder for setup)
----
+
 
 ---
 3. ### **Usage**
@@ -82,11 +82,11 @@ User Operations
 - Edit user details including roles
 - Delete user accounts
 - Reset user passwords
----
+
 
 ---
 4. ### **Testing:**
----
+
 
 
 ---
@@ -109,7 +109,7 @@ Create a Pull Request on GitHub for review and merge
 This project is licensed under the MIT License - see the LICENSE file for details.
 License
 MIT License
----
+
 
 ---
 ### **Best Practices**
