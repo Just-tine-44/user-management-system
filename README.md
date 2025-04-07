@@ -83,7 +83,10 @@ User Operations
 
 ---
 4. ### **Testing:**
+1. Tester Functional Testing: 
+Functional testing verifies that the application behaves according to its specifications and meets user requirements. As Tester 1, I conducted comprehensive testing of all core user flows and system functionality to ensure the User Management System performs as expected.
 
+- Link: https://docs.google.com/document/d/1py8yXO7MQAyqBwc9H5Sps5yMLua4tqZC8I3yo8FXwL0/edit?usp=sharing 
 
 
 ---
