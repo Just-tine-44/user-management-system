@@ -44,10 +44,15 @@ export class LoginComponent implements OnInit {
         this.accountService.login(this.f.email.value, this.f.password.value)
             .pipe(first())
             .subscribe({
-                next: () => {
-                    // get return url from query parameters or default to home page
-                    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-                    this.router.navigateByUrl(returnUrl);
+                next: account => {
+                    const isActive = JSON.parse(localStorage.getItem(`account_${account.id}`) || 'true');
+                    if (!isActive && account.role !== 'Admin') {
+                        this.alertService.error('Your account has been deactivated. Please contact the administrator.');
+                        this.loading = false;
+                    } else {
+                        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+                        this.router.navigateByUrl(returnUrl);
+                    }
                 },
                 error: error => {
                     this.alertService.error(error);
