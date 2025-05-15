@@ -46,8 +46,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return createAccount();
                 case url.match(/\/accounts\/\d+$/) && method === 'PUT':
                     return updateAccount();
-                case url.match(/\/accounts\/\d+$/) && method === 'DELETE':
-                    return deleteAccount();
                 default:
                     // pass through any requests not handled above
                     return next.handle(request);
@@ -59,8 +57,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         function authenticate() {
             const { email, password } = body;
             const account = accounts.find(x => x.email === email && x.password === password && x.isVerified);
-            
+
             if (!account) return error('Email or password is incorrect');
+            if (!account.isActive && account.role !== Role.Admin) {
+                return error('Your account has been deactivated. Please contact the administrator.');
+            }
 
             // add refresh token to account
             account.refreshTokens.push(generateRefreshToken());
@@ -133,25 +134,13 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 account.role = Role.User;
             }
             account.dateCreated = new Date().toISOString();
-            account.verificationToken = new Date().getTime().toString();
-            account.isVerified = false;
+            account.isVerified = true; // Mark as verified
+            account.isActive = true; // Ensure the account is active
             account.refreshTokens = [];
             delete account.confirmPassword;
             accounts.push(account);
             localStorage.setItem(accountsKey, JSON.stringify(accounts));
         
-            // display verification email in alert
-            setTimeout(() => {
-                const verifyUrl = `${location.origin}/account/verify-email?token=${account.verificationToken}`;
-                alertService.info(`
-                    <h4>Verification Email</h4>
-                    <p>Thanks for registering!</p>
-                    <p>Please click the below link to verify your email address:</p>
-                    <p><a href="${verifyUrl}">${verifyUrl}</a></p>
-                    <div><strong>NOTE:</strong> The fake backend displayed this "email" so you can test without an api. A real backend would send a real email.</div>
-                `, { autoClose: false });
-            }, 1000);
-
             return ok();
         }
 
@@ -228,6 +217,9 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         function getAccounts() {
             if (!isAuthenticated()) return unauthorized();
+
+            // Retrieve the latest account data from localStorage
+            accounts = JSON.parse(localStorage.getItem(accountsKey)) || [];
             return ok(accounts.map(x => basicDetails(x)));
         }
 
@@ -256,6 +248,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             account.id = newAccountId();
             account.dateCreated = new Date().toISOString();
             account.isVerified = true;
+            account.isActive = true; // Ensure all accounts are active by default
             account.refreshTokens = [];
             delete account.confirmPassword;
             accounts.push(account);
@@ -275,34 +268,16 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 return unauthorized();
             }
 
-            // only update password if included
-            if (!params.password) {
-                delete params.password;
+            // Ensure admin accounts remain active
+            if (account.role === Role.Admin && params.isActive === false) {
+                return error('Admin accounts cannot be deactivated.');
             }
-            // don't save confirm password
-            delete params.confirmPassword;
 
-            // update and save account
+            // Update and persist the account, including isActive status
             Object.assign(account, params);
-            localStorage.setItem(accountsKey, JSON.stringify(accounts));
+            localStorage.setItem(accountsKey, JSON.stringify(accounts)); // Persist changes in localStorage
 
             return ok(basicDetails(account));
-        }
-
-        function deleteAccount() {
-            if (!isAuthenticated()) return unauthorized();
-
-            let account = accounts.find(x => x.id === idFromUrl());
-
-            // user accounts can delete own account and admin accounts can delete any account
-            if (account.id !== currentAccount().id && !isAuthorized(Role.Admin)) {
-                return unauthorized();
-            }
-
-            // delete account then save
-            accounts = accounts.filter(x => x.id !== idFromUrl());
-            localStorage.setItem(accountsKey, JSON.stringify(accounts));
-            return ok();
         }
 
         // helper functions

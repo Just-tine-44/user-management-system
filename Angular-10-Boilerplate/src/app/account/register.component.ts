@@ -49,7 +49,8 @@ export class RegisterComponent implements OnInit {
         }
     
         this.loading = true;
-        this.accountService.register(this.form.value)
+        const accountData = { ...this.form.value, isActive: true }; // Set isActive to true
+        this.accountService.register(accountData)
             .pipe(first())
             .subscribe({
                 next: () => {
@@ -62,4 +63,4 @@ export class RegisterComponent implements OnInit {
                 }
             });
     }
-}    
+}
