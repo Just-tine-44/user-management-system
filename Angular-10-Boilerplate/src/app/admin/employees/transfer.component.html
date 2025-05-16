@@ -1,0 +1,38 @@
+<div class="modal-container">
+  <!-- Modal dialog -->
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Transfer Employee: {{employee?.employeeId}}</h5>
+        <button type="button" class="btn-close" (click)="cancel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="loading" class="text-center mb-3">
+          <div class="spinner-border text-primary"></div>
+          <p>Processing transfer...</p>
+        </div>
+        <div [hidden]="loading">
+          <div class="alert alert-info mb-3" *ngIf="employee">
+            <strong>Current Department:</strong> {{employee?.department?.name || 'None'}}
+          </div>
+          <div class="mb-3">
+            <label class="form-label mr-2">New Department: </label>
+            <select class="form-select" [(ngModel)]="departmentId" [ngClass]="{ 'is-invalid': submitted && !departmentId }">
+              <option [ngValue]="null">Select Department</option>
+              <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
+            </select>
+            <div *ngIf="submitted && !departmentId" class="invalid-feedback">
+              Department is required
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" [disabled]="loading" (click)="transfer()">Transfer</button>
+        <button class="btn btn-secondary" [disabled]="loading" (click)="cancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

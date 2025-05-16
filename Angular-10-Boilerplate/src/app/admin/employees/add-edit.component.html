@@ -1,0 +1,69 @@
+<div class="card">
+  <div class="card-header">{{isAddMode ? 'Add' : 'Edit'}} Employee</div>
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="alert alert-danger" *ngIf="submitted && form.invalid">
+        Please fill all required fields correctly.
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Employee ID</label>
+        <input type="text" class="form-control" formControlName="employeeId" readonly>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">User</label>
+        <select class="form-select" formControlName="userId" [ngClass]="{ 'is-invalid': submitted && f['userId'].errors }">
+          <option value=""></option>
+          <option *ngFor="let user of users" [value]="user.id">{{user.email}}</option>
+        </select>
+        <div *ngIf="submitted && f['userId'].errors" class="invalid-feedback">
+          <div *ngIf="f['userId'].errors.required">User is required</div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Position</label>
+        <input type="text" class="form-control" formControlName="position" [ngClass]="{ 'is-invalid': submitted && f['position'].errors }">
+        <div *ngIf="submitted && f['position'].errors" class="invalid-feedback">
+          <div *ngIf="f['position'].errors.required">Position is required</div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Department</label>
+        <select class="form-select" formControlName="departmentId" [ngClass]="{ 'is-invalid': submitted && f['departmentId'].errors }">
+          <option value=""></option>
+          <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
+        </select>
+        <div *ngIf="submitted && f['departmentId'].errors" class="invalid-feedback">
+          <div *ngIf="f['departmentId'].errors.required">Department is required</div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Hire Date</label>
+        <input type="date" class="form-control" formControlName="hireDate" [ngClass]="{ 'is-invalid': submitted && f['hireDate'].errors }">
+        <div *ngIf="submitted && f['hireDate'].errors" class="invalid-feedback">
+          <div *ngIf="f['hireDate'].errors.required">Hire date is required</div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select class="form-select" formControlName="status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary me-2" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          Save
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="loading">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
