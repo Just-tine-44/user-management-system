@@ -1,0 +1,501 @@
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <!-- View mode title (viewing a specific workflow) -->
+        <span *ngIf="isViewMode() && workflows && workflows.length > 0">
+          <i class="fas fa-file-alt me-2"></i> Workflow Details
+        </span>
+        
+        <!-- List mode titles -->
+        <span *ngIf="!isViewMode() && employeeId && employee && account()?.role === 'Admin'">
+          <i class="fas fa-tasks me-2"></i> Workflows for {{employee?.User?.firstName}} {{employee?.User?.lastName}}
+        </span>
+        <span *ngIf="!isViewMode() && employeeId && employee && account()?.role !== 'Admin'">
+          <i class="fas fa-history me-2"></i> My Workflow History
+        </span>
+        <span *ngIf="!isViewMode() && employeeId && !employee">
+          <i class="fas fa-spinner me-2"></i> Workflows for Employee {{employeeId}}
+        </span>
+        <span *ngIf="!isViewMode() && !employeeId && account()?.role !== 'Admin'">
+          <i class="fas fa-list me-2"></i> My Workflows
+        </span>
+      </h5>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="card-body p-4" *ngIf="loading">
+    <div class="text-center loading-overlay">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2">Loading workflows...</p>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div class="card-body" *ngIf="!loading && errorMessage">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle me-2"></i> {{errorMessage}}
+      <button class="btn btn-sm btn-outline-danger float-end" (click)="refreshWorkflows()">
+        <i class="fas fa-sync"></i> Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="card-body" *ngIf="!loading && !errorMessage && (!workflows || workflows.length === 0)">
+    <div class="alert alert-info text-center p-4">
+      <i class="fas fa-info-circle fa-2x mb-3"></i>
+      <p *ngIf="employeeId && isUserEmployee">You don't have any workflows yet.</p>
+      <p *ngIf="employeeId && !isUserEmployee">No workflows found for this employee.</p>
+      <p *ngIf="!employeeId && account()?.role !== 'Admin'">You don't have any workflows assigned to you.</p>
+    </div>
+  </div>
+
+  <!-- View mode - detail display -->
+  <div class="card-body" *ngIf="!loading && !errorMessage && isViewMode() && workflows && workflows.length > 0">
+    <div class="workflow-detail-view">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <span [ngClass]="getWorkflowTypeClass(workflows[0].type)" class="me-2 px-2 py-1">
+                  {{workflows[0].type}}
+                </span>
+                Workflow Information
+              </h5>
+              <span [ngClass]="getStatusClass(workflows[0].status)">
+                {{workflows[0].status}}
+              </span>
+            </div>
+            <div class="card-body">
+              <!-- Workflow details section -->
+              <div *ngIf="workflows[0].details" class="workflow-details">
+                <!-- For Transfer workflows -->
+                <div *ngIf="workflows[0].type === 'Transfer' && typeOf(workflows[0].details) === 'object'">
+                  <div class="mb-3">
+                    <h6 class="text-muted">Transfer Details</h6>
+                    <div class="details-item">
+                      <span class="details-label">From Department:</span>
+                      <span class="details-value">{{getDepartmentName(workflows[0].details.oldDepartmentId)}}</span>
+                    </div>
+                    <div class="details-item">
+                      <span class="details-label">To Department:</span>
+                      <span class="details-value">{{getDepartmentName(workflows[0].details.newDepartmentId)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.transferDate">
+                      <span class="details-label">Transfer Date:</span>
+                      <span class="details-value">{{formatDate(workflows[0].details.transferDate)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.reason">
+                      <span class="details-label">Reason:</span>
+                      <span class="details-value">{{workflows[0].details.reason}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- For Onboarding workflows -->
+                <div *ngIf="workflows[0].type === 'Onboarding' && typeOf(workflows[0].details) === 'object'">
+                  <div class="mb-3">
+                    <h6 class="text-muted">Onboarding Details</h6>
+                    <div class="details-item" *ngIf="workflows[0].details.startDate">
+                      <span class="details-label">Start Date:</span>
+                      <span class="details-value">{{formatDate(workflows[0].details.startDate)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.department">
+                      <span class="details-label">Department:</span>
+                      <span class="details-value">{{getDepartmentName(workflows[0].details.department)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.position">
+                      <span class="details-label">Position:</span>
+                      <span class="details-value">{{workflows[0].details.position}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.manager">
+                      <span class="details-label">Manager:</span>
+                      <span class="details-value">{{workflows[0].details.manager}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- For Offboarding workflows -->
+                <div *ngIf="workflows[0].type === 'Offboarding' && typeOf(workflows[0].details) === 'object'">
+                  <div class="mb-3">
+                    <h6 class="text-muted">Offboarding Details</h6>
+                    <div class="details-item" *ngIf="workflows[0].details.lastWorkingDate">
+                      <span class="details-label">Last Working Day:</span>
+                      <span class="details-value">{{formatDate(workflows[0].details.lastWorkingDate)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.reason">
+                      <span class="details-label">Reason:</span>
+                      <span class="details-value">{{workflows[0].details.reason}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.exitInterviewDate">
+                      <span class="details-label">Exit Interview:</span>
+                      <span class="details-value">{{formatDate(workflows[0].details.exitInterviewDate)}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- For Promotion workflows -->
+                <div *ngIf="workflows[0].type === 'Promotion' && typeOf(workflows[0].details) === 'object'">
+                  <div class="mb-3">
+                    <h6 class="text-muted">Promotion Details</h6>
+                    <div class="details-item" *ngIf="workflows[0].details.currentPosition">
+                      <span class="details-label">Current Position:</span>
+                      <span class="details-value">{{workflows[0].details.currentPosition}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.newPosition">
+                      <span class="details-label">New Position:</span>
+                      <span class="details-value">{{workflows[0].details.newPosition}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.effectiveDate">
+                      <span class="details-label">Effective Date:</span>
+                      <span class="details-value">{{formatDate(workflows[0].details.effectiveDate)}}</span>
+                    </div>
+                    <div class="details-item" *ngIf="workflows[0].details.reason">
+                      <span class="details-label">Reason:</span>
+                      <span class="details-value">{{workflows[0].details.reason}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Generic fallback for other workflow types -->
+                <div *ngIf="(workflows[0].type !== 'Transfer' && workflows[0].type !== 'Onboarding' && workflows[0].type !== 'Offboarding' && workflows[0].type !== 'Promotion') && typeOf(workflows[0].details) === 'object'">
+                  <div class="mb-3">
+                    <h6 class="text-muted">Workflow Details</h6>
+                    <div class="details-item" *ngFor="let key of objectKeys(workflows[0].details)">
+                      <span class="details-label">{{formatLabel(key)}}:</span>
+                      <span class="details-value" *ngIf="key.toLowerCase().includes('date')">
+                        {{formatDate(workflows[0].details[key])}}
+                      </span>
+                      <span class="details-value" *ngIf="key.toLowerCase().includes('department')">
+                        {{getDepartmentName(workflows[0].details[key])}}
+                      </span>
+                      <span class="details-value" *ngIf="!key.toLowerCase().includes('date') && !key.toLowerCase().includes('department')">
+                        {{workflows[0].details[key]}}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Additional workflow info -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Timeline</h5>
+            </div>
+            <div class="card-body">
+              <div class="workflow-timeline">
+                <div class="timeline-item">
+                  <div class="timeline-marker bg-primary"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between">
+                      <h6>Created</h6>
+                      <small class="text-muted">{{workflows[0].createdAt | date:'MMM d, y'}}</small>
+                    </div>
+                    <p class="text-muted">Workflow initiated</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="workflows[0].status === 'InProgress'">
+                  <div class="timeline-marker bg-info"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between">
+                      <h6>In Progress</h6>
+                      <small class="text-muted">{{workflows[0].updatedAt | date:'MMM d, y':'Asia/Manila'}}</small>
+                    </div>
+                    <p class="text-muted">Workflow is being processed</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="workflows[0].status === 'Completed'">
+                  <div class="timeline-marker bg-success"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between">
+                      <h6>Completed</h6>
+                      <small class="text-muted">{{workflows[0].completionDate | date:'MMM d, y':'Asia/Manila'}}</small>
+                    </div>
+                    <p class="text-muted">Workflow successfully completed</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="workflows[0].status === 'Canceled'">
+                  <div class="timeline-marker bg-danger"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between">
+                      <h6>Canceled</h6>
+                      <small class="text-muted">{{workflows[0].updatedAt | date:'MMM d, y'}}</small>
+                    </div>
+                    <p class="text-muted">Workflow was canceled</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Update Status</h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="account()?.role === 'Admin'">
+                <select class="form-select mb-3" 
+                        [(ngModel)]="workflows[0].status" 
+                        (change)="updateStatus(workflows[0])"
+                        [disabled]="loading">
+                  <option value="Pending">Pending</option>
+                  <option value="InProgress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Canceled">Canceled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List mode - workflows table -->
+  <div class="card-body" *ngIf="!loading && !errorMessage && !isViewMode() && workflows && workflows.length > 0">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Type</th>
+            <th>Details</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let workflow of workflows">
+            <td>
+              <span [ngClass]="getWorkflowTypeClass(workflow.type)" class="px-2 py-1">
+                {{workflow.type}}
+              </span>
+            </td>
+            <td>
+              <!-- Improved details display with card-like layout -->
+              <div *ngIf="workflow.details" class="workflow-details">
+                <!-- For Transfer workflows -->
+                <div *ngIf="workflow.type === 'Transfer' && typeOf(workflow.details) === 'object'">
+                  <div class="details-item">
+                    <span class="details-label">From:</span>
+                    <span class="details-value">{{getDepartmentName(workflow.details.oldDepartmentId)}}</span>
+                  </div>
+                  <div class="details-item">
+                    <span class="details-label">To:</span>
+                    <span class="details-value">{{getDepartmentName(workflow.details.newDepartmentId)}}</span>
+                  </div>
+                  <div class="details-item" *ngIf="workflow.details.transferDate">
+                    <span class="details-label">Date:</span>
+                    <span class="details-value">{{formatDate(workflow.details.transferDate)}}</span>
+                  </div>
+                </div>
+                
+                <!-- For Onboarding workflows -->
+                <div *ngIf="workflow.type === 'Onboarding' && typeOf(workflow.details) === 'object'">
+                  <div class="details-item" *ngIf="workflow.details.startDate">
+                    <span class="details-label">Start Date:</span>
+                    <span class="details-value">{{formatDate(workflow.details.startDate)}}</span>
+                  </div>
+                  <div class="details-item" *ngIf="workflow.details.department">
+                    <span class="details-label">Department:</span>
+                    <span class="details-value">{{getDepartmentName(workflow.details.department)}}</span>
+                  </div>
+                  <div class="details-item" *ngIf="workflow.details.position">
+                    <span class="details-label">Position:</span>
+                    <span class="details-value">{{workflow.details.position}}</span>
+                  </div>
+                </div>
+                
+                <!-- For Offboarding workflows -->
+                <div *ngIf="workflow.type === 'Offboarding' && typeOf(workflow.details) === 'object'">
+                  <div class="details-item" *ngIf="workflow.details.lastWorkingDate">
+                    <span class="details-label">Last Day:</span>
+                    <span class="details-value">{{formatDate(workflow.details.lastWorkingDate)}}</span>
+                  </div>
+                  <div class="details-item" *ngIf="workflow.details.reason">
+                    <span class="details-label">Reason:</span>
+                    <span class="details-value">{{workflow.details.reason}}</span>
+                  </div>
+                </div>
+                
+                <!-- For Promotion workflows -->
+                <div *ngIf="workflow.type === 'Promotion' && typeOf(workflow.details) === 'object'">
+                  <div class="details-item" *ngIf="workflow.details.newPosition">
+                    <span class="details-label">New Position:</span>
+                    <span class="details-value">{{workflow.details.newPosition}}</span>
+                  </div>
+                  <div class="details-item" *ngIf="workflow.details.effectiveDate">
+                    <span class="details-label">Effective:</span>
+                    <span class="details-value">{{formatDate(workflow.details.effectiveDate)}}</span>
+                  </div>
+                </div>
+                
+                <!-- Generic fallback for other workflow types or when specific template isn't available -->
+                <div *ngIf="(workflow.type !== 'Transfer' && workflow.type !== 'Onboarding' && workflow.type !== 'Offboarding' && workflow.type !== 'Promotion') && typeOf(workflow.details) === 'object'">
+                  <div class="details-item" *ngFor="let key of objectKeys(workflow.details)">
+                    <span class="details-label">{{formatLabel(key)}}:</span>
+                    <span class="details-value" *ngIf="key.toLowerCase().includes('date')">
+                      {{formatDate(workflow.details[key])}}
+                    </span>
+                    <span class="details-value" *ngIf="key.toLowerCase().includes('department')">
+                      {{getDepartmentName(workflow.details[key])}}
+                    </span>
+                    <span class="details-value" *ngIf="!key.toLowerCase().includes('date') && !key.toLowerCase().includes('department')">
+                      {{workflow.details[key]}}
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- For string-type details -->
+                <div *ngIf="typeOf(workflow.details) === 'string'" class="details-value text-muted">
+                  {{workflow.details}}
+                </div>
+              </div>
+              
+              <div *ngIf="!workflow.details">
+                <span class="text-muted">No details available</span>
+              </div>
+            </td>
+            <td>
+              <span [ngClass]="getStatusClass(workflow.status)">{{workflow.status}}</span>
+            </td>
+            <td>
+              <small class="text-muted">{{workflow.createdAt | date:'MMM d, y':'Asia/Manila'}}</small>
+              <div *ngIf="workflow.completionDate" class="mt-1 small text-success">
+                <i class="fas fa-check-circle"></i> Completed: {{workflow.completionDate | date:'MMM d, y':'Asia/Manila'}}
+              </div>
+            </td>
+            <td>
+              <!-- Admin has full control -->
+              <div *ngIf="account()?.role === 'Admin'" class="btn-group">
+                <button class="btn btn-sm btn-outline-primary me-1" 
+                        (click)="viewDetails(workflow)" 
+                        [disabled]="loading">
+                  <i class="fas fa-eye"></i> Edit
+                </button>
+              </div>
+              
+              <!-- Regular users can update only if they're the assignee -->
+              <div *ngIf="account()?.role !== 'Admin' && workflow.assignedToId === account()?.id" class="d-flex">
+                <select class="form-select form-select-sm d-inline-block w-auto me-2" 
+                        [(ngModel)]="workflow.status" 
+                        (change)="updateStatus(workflow)"
+                        [disabled]="loading || workflow.status === 'Completed' || workflow.status === 'Canceled'">
+                  <option value="Pending">Pending</option>
+                  <option value="InProgress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+                <button class="btn btn-sm btn-outline-primary" 
+                        (click)="viewDetails(workflow)" 
+                        [disabled]="loading">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              
+              <!-- View-only mode for employees who aren't assignees -->
+              <div *ngIf="account()?.role !== 'Admin' && workflow.assignedToId !== account()?.id">
+                <button class="btn btn-sm btn-outline-primary" 
+                        (click)="viewDetails(workflow)" 
+                        [disabled]="loading">
+                  <i class="fas fa-eye"></i> View
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer with actions -->
+  <div class="card-footer d-flex justify-content-between">
+    <!-- Back button for view mode -->
+    <button *ngIf="isViewMode()" 
+            class="btn btn-outline-secondary" 
+            (click)="goBackToEmployeeWorkflows()">
+      <i class="fas fa-arrow-left"></i> Back to Workflows
+    </button>
+    
+    <!-- Back button for list mode - admins looking at employee workflows -->
+    <button *ngIf="!isViewMode() && employeeId && account()?.role === 'Admin'" 
+            class="btn btn-outline-secondary" 
+            (click)="router.navigate(['/admin/employees'])">
+      <i class="fas fa-arrow-left"></i> Back to Employees
+    </button>
+    
+    <!-- Back button for list mode - regular users viewing their workflows -->
+    <button *ngIf="!isViewMode() && employeeId && account()?.role !== 'Admin'" 
+            class="btn btn-outline-secondary" 
+            (click)="router.navigate(['/home'])">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </button>
+    
+    <!-- Empty div to maintain flex spacing when no back button -->
+    <div *ngIf="!isViewMode() && !employeeId"></div>
+    
+    <!-- Right side actions -->
+    <div>
+      <!-- Refresh button for all users -->
+      <button class="btn btn-outline-secondary" (click)="refreshWorkflows()">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Styles for this component -->
+<style>
+  .workflow-details {
+    font-size: 0.9rem;
+  }
+  .details-item {
+    display: flex;
+    margin-bottom: 0.35rem;
+    line-height: 1.2;
+  }
+  .details-label {
+    font-weight: 600;
+    min-width: 120px;
+    color: #495057;
+    margin-right: 0.75rem;
+  }
+  .details-value {
+    color: #212529;
+  }
+  
+  /* Timeline styling for view mode */
+  .workflow-timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .timeline-marker {
+    position: absolute;
+    left: -24px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    top: 4px;
+  }
+  .timeline-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: -16px;
+    border-left: 1px dashed #dee2e6;
+    height: calc(100% + 1.5rem);
+    top: 4px;
+  }
+</style>
