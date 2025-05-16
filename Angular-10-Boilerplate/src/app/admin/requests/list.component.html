@@ -1,0 +1,61 @@
+<div class="card">
+  <div class="card-header">Requests</div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Employee</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of requests">
+            <td>{{request.type}}</td>
+            <td>
+              <span *ngIf="request.Employee?.User?.firstName">
+                {{request.Employee.User.firstName}} {{request.Employee.User.lastName}}
+                <small class="d-block text-muted">
+                  {{request.Employee.User.email}}
+                </small>
+              </span>
+            </td>
+            <td>
+              <ul class="list-unstyled mb-0">
+                <li *ngFor="let item of request.items">{{item.name}} ({{item.quantity}})</li>
+                <li *ngIf="!request.items?.length" class="text-muted">No items</li>
+              </ul>
+            </td>
+            <td>
+              <span [ngClass]="{'badge': true, 
+                'bg-warning': request.status === 'Pending',
+                'bg-success': request.status === 'Approved',
+                'bg-danger': request.status === 'Rejected',
+                'bg-secondary': request.status === 'Canceled'
+              }">
+                {{request.status}}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="account()?.role === 'Admin'" class="btn btn-sm btn-primary me-1" (click)="editRequest(request.id)">Edit</button>
+              <button *ngIf="account()?.role === 'Admin'" class="btn btn-sm btn-danger" (click)="deleteRequest(request.id)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="!requests.length">
+            <td colspan="5" class="text-center">No requests found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <div>
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="requests.length" class="text-muted">{{requests.length}} request(s) found</span>
+    </div>
+    <button class="btn btn-primary" (click)="add()">Add Request</button>
+  </div>
+</div>
