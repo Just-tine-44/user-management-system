@@ -20,7 +20,8 @@ module.exports = {
     getById,
     create,
     update,
-    delete: _delete
+    delete: _delete,
+    updateStatus
 };
 
 async function authenticate({ email, password, ipAddress }) {
@@ -239,8 +240,8 @@ function randomTokenString() {
 }
 
 function basicDetails(account) {
-    const { id, title, firstName, lastName, email, role, created, updated, isVerified } = account;
-    return { id, title, firstName, lastName, email, role, created, updated, isVerified };
+    const { id, title, firstName, lastName, email, role, created, updated, isVerified, isActive } = account;
+    return { id, title, firstName, lastName, email, role, created, updated, isVerified, isActive };
 }
 
 async function sendVerificationEmail(account, origin) {
@@ -299,4 +300,16 @@ async function sendPasswordResetEmail(account, origin) {
         html: `<h4>Reset Password Email</h4>
                ${message}`
     });
+}
+
+async function updateStatus(id, { isActive }) {
+    // Get the account
+    const account = await getAccount(id);
+    
+    // Update account status
+    account.isActive = isActive;
+    account.updated = Date.now();
+    await account.save();
+    
+    return basicDetails(account);
 }

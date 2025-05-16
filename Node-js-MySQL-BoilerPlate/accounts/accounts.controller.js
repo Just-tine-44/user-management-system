@@ -20,6 +20,7 @@ router.get('/:id', authorize(), getById);
 router.post('/', authorize(Role.Admin), createSchema, create);
 router.put('/:id', authorize(), updateSchema, update);
 router.delete('/:id', authorize(), _delete);
+router.patch('/:id/status', authorize(Role.Admin), updateStatusSchema, updateStatus);
 
 module.exports = router;
 
@@ -239,4 +240,16 @@ function updateSchema(req, res, next) {
     res.cookie('refreshToken', token, cookieOptions);
   }
   
+function updateStatusSchema(req, res, next) {
+    const schema = Joi.object({
+        isActive: Joi.boolean().required()
+    });
+    validateRequest(req, next, schema);
+}
+
+function updateStatus(req, res, next) {
+    accountService.updateStatus(req.params.id, req.body)
+        .then(account => res.json(account))
+        .catch(next);
+}
 
