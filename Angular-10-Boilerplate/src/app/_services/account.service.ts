@@ -96,6 +96,10 @@ export class AccountService {
             }));
     }    
 
+    updateStatus(id: string, isActive: boolean) {
+        return this.http.patch<Account>(`${baseUrl}/${id}/status`, { isActive });
+    }
+
     delete(id: string) {
         return this.http.delete(`${baseUrl}/${id}`)
             .pipe(finalize(() => {
