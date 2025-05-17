@@ -7,10 +7,26 @@ const cors = require('cors');
 const path = require('path');
 const errorHandler = require('_middleware/error-handler');
 
-// Allow CORS requests with credentials
+// Update your CORS configuration to allow both domains
+const allowedOrigins = [
+  'https://paraiso-final-project-system-2025.onrender.com',
+  'https://paraiso-final-project-2025.onrender.com',
+  // Add localhost for development
+  'http://localhost:4200'
+];
+
 app.use(cors({ 
-  origin: 'https://paraiso-final-project-system-2025.onrender.com',
-  credentials: true 
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
