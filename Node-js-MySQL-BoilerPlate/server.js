@@ -7,7 +7,7 @@ const cors = require('cors');
 const path = require('path');
 const errorHandler = require('_middleware/error-handler');
 
-// Allow CORS requests from specified origins with credentials
+// Allow CORS requests with credentials
 app.use(cors({ 
   origin: 'https://paraiso-final-project-system-2025.onrender.com',
   credentials: true 
@@ -19,10 +19,9 @@ app.use(cookieParser());
 
 // Set paths for deployment
 const angularPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, 'public')
+  ? path.join(__dirname, 'public') 
   : path.join(__dirname, '../Angular-10-Boilerplate');
 
-// Serve static files
 app.use(express.static(angularPath));
 
 // Request logging middleware
@@ -39,7 +38,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Additional request body logging for POST/PUT
 app.use((req, res, next) => {
   if (req.method === 'POST' || req.method === 'PUT') {
     console.log(`[${req.method}] ${req.url} - Request body:`, JSON.stringify(req.body));
