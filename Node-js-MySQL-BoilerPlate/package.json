@@ -4,7 +4,7 @@
     "description": "NodeJS and MySQL API for Email Sign Up with Verification, Authentication & Forgot Password",
     "license": "MIT",
     "scripts": {
-        "postinstall": "cd ../Angular-10-Boilerplate && npm install && npm run build -- --configuration production && mkdir -p ../Node-js-MySQL-BoilerPlate/public && cp -r dist/angular-signup-verification-boilerplate/* ../Node-js-MySQL-BoilerPlate/public/",
+        "postinstall": "cd ../Angular-10-Boilerplate && npm install && npm run build -- --configuration production && mkdir -p ../Node-js-MySQL-BoilerPlate/public && cp -r dist/angular-signup-verification-boilerplate/browser/* ../Node-js-MySQL-BoilerPlate/public/",
         "start": "node ./server.js",
         "start:dev": "nodemon ./server.js"
     },
