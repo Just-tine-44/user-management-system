@@ -24,12 +24,9 @@ app.use('/requests', require('./requests/requests.controller'));
 // swagger docs route
 app.use('/api-docs', require('_helper/swagger'));
 
-// Serve Angular static files
-app.use(express.static(path.join(__dirname, 'Angular-10-Boilerplate/dist/angular-signup-verification-boilerplate')));
-
-// For any other route, serve Angular's index.html
+app.use(express.static(path.join(__dirname, 'dist/angular-signup-verification-boilerplate')));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Angular-10-Boilerplate/dist/angular-signup-verification-boilerplate/index.html'));
+  res.sendFile(path.join(__dirname, 'dist/angular-signup-verification-boilerplate/index.html'));
 });
 
 // global error handler
