@@ -4,8 +4,7 @@
 
 export const environment = {
     production: false,
-    // apiUrl: 'http://localhost:4000'
-    apiUrl: 'https://paraiso-final-project-2025.onrender.com'
+    apiUrl: 'http://localhost:4000'
   };
   
   /*

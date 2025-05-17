@@ -1,0 +1,9 @@
+services:
+  - name: paraiso-final-project-system-2025
+    type: web
+    env: node
+    buildCommand: npm install && cd ../Angular-10-Boilerplate && npm install && npm run build -- --configuration production && mkdir -p ../Node-js-MySQL-BoilerPlate/public && cp -r dist/Angular-10-Boilerplate/* ../Node-js-MySQL-BoilerPlate/public/
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
