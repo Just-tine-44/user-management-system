@@ -32,7 +32,14 @@ export class AddEditComponent implements OnInit {
   ) {}
   
   ngOnInit() {
-    this.id = this.route.snapshot.params['id'];
+  this.id = this.route.snapshot.params['id'];
+    
+  // Get employeeId from query parameters
+  const queryParams = this.route.snapshot.queryParams;
+  if (queryParams && queryParams['employeeId']) {
+    this.request.employeeId = queryParams['employeeId'];
+    console.log('Using employeeId from query params:', this.request.employeeId);
+  }
     
     // If editing an existing request, load its data
     if (this.id) {
@@ -80,6 +87,9 @@ export class AddEditComponent implements OnInit {
       this.errorMessage = 'Request type is required';
       return;
     }
+    
+    // Add debug log
+    console.log('Saving request with data:', this.request);
     
     // Validate items
     if (this.request.items.length === 0) {

@@ -16,21 +16,32 @@ async function create(req, res, next) {
     try {
         console.log('Creating request:', req.body);
         
-        // Find the employee ID for the current user if not already available
-        let employeeId = req.user.employeeId;
-        if (!employeeId) {
-            const employee = await db.Employee.findOne({
-                where: { userId: req.user.id }
-            });
-            
-            if (!employee) {
-                return res.status(400).json({ 
-                    message: 'Cannot create request: No employee record found for current user' 
+        let employeeId;
+        
+        // If admin user and employeeId provided in request body, use that
+        if (req.user.role === Role.Admin && req.body.employeeId) {
+            employeeId = req.body.employeeId;
+            console.log(`Admin creating request for employee ${employeeId}`);
+        } else {
+            // Otherwise use the current user's employee ID
+            employeeId = req.user.employeeId;
+            if (!employeeId) {
+                const employee = await db.Employee.findOne({
+                    where: { userId: req.user.id }
                 });
+                
+                if (!employee) {
+                    return res.status(400).json({ 
+                        message: 'Cannot create request: No employee record found for current user' 
+                    });
+                }
+                
+                employeeId = employee.id;
             }
-            
-            employeeId = employee.id;
         }
+        
+        // Add debug log to see what employeeId is being used
+        console.log(`Creating request with employeeId: ${employeeId}`);
         
         // First create the request
         const request = await db.Request.create({
@@ -49,15 +60,19 @@ async function create(req, res, next) {
         }
         
         // Fetch the created request with its items
-        const createdRequest = await db.Request.findByPk(request.id, {
+       const createdRequest = await db.Request.findByPk(request.id, {
             include: [
                 { model: db.RequestItem, as: 'items' },
-                { model: db.Employee, include: [
-                    { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
-                ]}
+                { 
+                    model: db.Employee, 
+                    as: 'employee', // Add this line
+                    include: [
+                        { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
+                    ]
+                }
             ]
         });
-        
+
         res.status(201).json(createdRequest);
     } catch (err) { 
         console.error('Error creating request:', err);
@@ -73,6 +88,7 @@ async function getAll(req, res, next) {
                 { model: db.RequestItem, as: 'items' },
                 { 
                     model: db.Employee,
+                    as: 'employee', 
                     include: [
                         { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
                     ]
@@ -101,6 +117,7 @@ async function getById(req, res, next) {
                 { model: db.RequestItem, as: 'items' },
                 { 
                     model: db.Employee,
+                    as: 'employee', 
                     include: [
                         { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
                     ]
@@ -145,6 +162,13 @@ async function getByEmployeeId(req, res, next) {
             where: { employeeId: req.params.employeeId },
             include: [
                 { model: db.RequestItem, as: 'items' },
+                { 
+                    model: db.Employee, 
+                    as: 'employee', 
+                    include: [
+                        { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
+                    ]
+                },
                 { 
                     model: db.Account, 
                     as: 'Reviewer', 
@@ -242,6 +266,7 @@ async function update(req, res, next) {
                 { model: db.RequestItem, as: 'items' },
                 { 
                     model: db.Employee,
+                    as: 'employee', // Add this line
                     include: [
                         { model: db.Account, as: 'User', attributes: ['id', 'firstName', 'lastName', 'email'] }
                     ]
