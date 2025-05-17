@@ -18,10 +18,16 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 const angularPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '../angular-signup-verification-boilerplate/dist/angular-signup-verification-boilerplate/browser') 
-  : path.join(__dirname, '../angular-signup-verification-boilerplate');
+  ? path.join(__dirname, 'public') 
+  : path.join(__dirname, '../Angular-10-Boilerplate');
 
-app.use(express.static(angularPath));
+console.log("Angular path:", angularPath);
+const fs = require('fs');
+if (fs.existsSync(path.join(angularPath, 'index.html'))) {
+  console.log('index.html found!');
+} else {
+  console.log('index.html NOT found! Directory contents:', fs.readdirSync(angularPath));
+}
 
 // Request logging middleware
 app.use((req, res, next) => {
