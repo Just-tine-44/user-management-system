@@ -24,6 +24,8 @@
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
-        "nodemon": "^2.0.22"
+        "@angular-devkit/build-angular": "^17.3.17",
+        "nodemon": "^2.0.22",
+        "protractor": "^7.0.0"
     }
 }
