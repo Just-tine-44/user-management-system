@@ -2,8 +2,18 @@ services:
   - name: paraiso-final-project-system-2025
     type: web
     env: node
-    buildCommand: npm install && cd ../Angular-10-Boilerplate && npm install && npm run build -- --configuration production && mkdir -p ../Node-js-MySQL-BoilerPlate/public && cp -r dist/Angular-10-Boilerplate/* ../Node-js-MySQL-BoilerPlate/public/
+    buildCommand: npm install && cd ../Angular-10-Boilerplate && npm install && npm run build -- --configuration production && mkdir -p ../Node-js-MySQL-BoilerPlate/public && cp -r dist/angular-signup-verification-boilerplate/* ../Node-js-MySQL-BoilerPlate/public/
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DB_HOST
+        value: 153.92.15.31
+      - key: DB_USER
+        value: u875409848_paraiso
+      - key: DB_PASSWORD
+        value: 9T2Z5$3UKkgSYzE
+      - key: DB_NAME
+        value: u875409848_paraiso
+      - key: PORT
+        value: 10000
