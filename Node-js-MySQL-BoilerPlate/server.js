@@ -29,6 +29,19 @@ if (fs.existsSync(path.join(angularPath, 'index.html'))) {
   console.log('index.html NOT found! Directory contents:', fs.readdirSync(angularPath));
 }
 
+// Serve static files with proper MIME types
+app.use(express.static(angularPath, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    }
+  }
+}));
+
 // Request logging middleware
 app.use((req, res, next) => {
   const requestInfo = {
@@ -59,6 +72,15 @@ app.use('/requests', require('./requests/requests.controller'));
 
 // Swagger docs route
 app.use('/api-docs', require('_helper/swagger'));
+
+// Add Content Security Policy headers to allow HTTPS resources
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:; font-src 'self' https:;"
+  );
+  next();
+});
 
 // Catch-all to serve Angular app for unknown routes
 app.get('*', (req, res) => {
