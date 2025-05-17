@@ -17,12 +17,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Set paths for deployment
 const angularPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, 'public') 
-  : path.join(__dirname, '../Angular-10-Boilerplate');
-
-app.use(express.static(angularPath));
+  ? path.join(__dirname, '../angular-signup-verification-boilerplate/dist/angular-signup-verification-boilerplate/browser') 
+  : path.join(__dirname, '../angular-signup-verification-boilerplate');
 
 // Request logging middleware
 app.use((req, res, next) => {
