@@ -16,11 +16,14 @@
           <tr *ngFor="let request of requests">
             <td>{{request.type}}</td>
             <td>
-              <span *ngIf="request.Employee?.User?.firstName">
-                {{request.Employee.User.firstName}} {{request.Employee.User.lastName}}
+              <span *ngIf="request.employee?.User?.firstName">
+                {{request.employee.User.firstName}} {{request.employee.User.lastName}}
                 <small class="d-block text-muted">
-                  {{request.Employee.User.email}}
+                  {{request.employee.User.email}}
                 </small>
+              </span>
+              <span *ngIf="!request.employee?.User" class="text-muted">
+                No employee data
               </span>
             </td>
             <td>
@@ -56,6 +59,6 @@
       <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="requests.length" class="text-muted">{{requests.length}} request(s) found</span>
     </div>
-    <button class="btn btn-primary" (click)="add()">Add Request</button>
+    <button class="btn btn-sm btn-primary" (click)="addRequest()">Add Request</button>
   </div>
 </div>

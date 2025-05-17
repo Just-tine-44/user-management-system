@@ -18,12 +18,12 @@ async function initialize() {
     // Connect to database with options
     const sequelize = new Sequelize(database, user, password, { 
         dialect: 'mysql',
-        logging: console.log, 
+        logging: console.log, // Enable SQL logging for debugging
         dialectOptions: {
             dateStrings: true,
             typeCast: true,
         },
-        timezone: '+00:00' 
+        timezone: '+00:00' // Set timezone to UTC
     });
 
     // Before syncing, disable foreign key checks to avoid circular dependency issues
@@ -45,6 +45,7 @@ async function initialize() {
         console.warn('RequestItem model not found or error initializing:', err.message);
     }
 
+    // Define relationships - note that model names must match what's used in the models
     
     // Account (User) relationships
     db.Account.hasMany(db.RefreshToken, { 
@@ -116,8 +117,10 @@ async function initialize() {
     //     });
     // }
     
+    // Request relationships - FIXED: Changed 'RequestItems' to 'items' to match controller code
     db.Request.belongsTo(db.Employee, { 
-        foreignKey: 'employeeId'
+        foreignKey: 'employeeId',
+        as: 'employee' 
     });
     
     db.Request.belongsTo(db.Account, { 
@@ -128,7 +131,7 @@ async function initialize() {
     if (db.RequestItem) {
         db.Request.hasMany(db.RequestItem, { 
             foreignKey: 'requestId', 
-            as: 'items',
+            as: 'items', // Changed from 'RequestItems' to 'items' to match controller
             onDelete: 'CASCADE' 
         });
         
