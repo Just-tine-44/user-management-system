@@ -21,6 +21,8 @@ const angularPath = process.env.NODE_ENV === 'production'
   ? path.join(__dirname, '../angular-signup-verification-boilerplate/dist/angular-signup-verification-boilerplate/browser') 
   : path.join(__dirname, '../angular-signup-verification-boilerplate');
 
+app.use(express.static(angularPath));
+
 // Request logging middleware
 app.use((req, res, next) => {
   const requestInfo = {
