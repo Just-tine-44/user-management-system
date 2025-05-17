@@ -53,25 +53,31 @@ export class ListComponent implements OnInit {
     this.router.navigate(['/admin/employees/edit', id]);
   }
   
-  deleteEmployee(id: string) {
-    const employee = this.employees.find(x => x.id === id);
-    if (!employee) return;
-    
-    employee.isDeleting = true;
-    this.employeeService.delete(id)
-      .pipe(first())
-      .subscribe(
-        () => {
-          this.employees = this.employees.filter(x => x.id !== id);
-          this.alertService.success('Employee deleted successfully');
-        },
-        error => {
+deleteEmployee(id: string) {
+  const employee = this.employees.find(x => x.id === id);
+  if (!employee) return;
+  
+  employee.isDeleting = true;
+  this.employeeService.delete(id)
+    .pipe(first())
+    .subscribe(
+      () => {
+        this.employees = this.employees.filter(x => x.id !== id);
+        this.alertService.success('Employee deleted successfully');
+      },
+      error => {
+        if (error.includes("associated workflows or requests")) {
+          this.alertService.error(
+            'Cannot delete this employee because they have associated workflows or requests. ' +
+            'Please delete those records first or transfer them to another employee.'
+          );
+        } else {
           this.alertService.error('Error deleting employee');
-          employee.isDeleting = false;
-          console.error(error);
         }
-      );
-  }
+        employee.isDeleting = false;
+      }
+    );
+}
   
   transfer(id: string) {
     this.router.navigate(['/admin/employees', id, 'transfer']);
