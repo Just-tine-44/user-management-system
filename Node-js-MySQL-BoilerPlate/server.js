@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const errorHandler = require('_middleware/error-handler');
+const path = require('path'); 
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -22,6 +23,14 @@ app.use('/requests', require('./requests/requests.controller'));
 
 // swagger docs route
 app.use('/api-docs', require('_helper/swagger'));
+
+// Serve Angular static files
+app.use(express.static(path.join(__dirname, '../Angular-10-Boilerplate/dist/angular-signup-verification-boilerplate')));
+
+// For any other route, serve Angular's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../Angular-10-Boilerplate/dist/angular-signup-verification-boilerplate/index.html'));
+});
 
 // global error handler
 app.use(errorHandler);
