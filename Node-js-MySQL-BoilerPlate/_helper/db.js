@@ -17,14 +17,16 @@ async function initialize() {
 
     // Connect to database with options
     const sequelize = new Sequelize(database, user, password, { 
-        dialect: 'mysql',
-        logging: console.log, // Enable SQL logging for debugging
-        dialectOptions: {
-            dateStrings: true,
-            typeCast: true,
-        },
-        timezone: '+00:00' // Set timezone to UTC
-    });
+    host: host,  // Add this line to specify the host
+    port: port,  // Add this line to specify the port
+    dialect: 'mysql',
+    logging: console.log, // Enable SQL logging for debugging
+    dialectOptions: {
+        dateStrings: true,
+        typeCast: true,
+    },
+    timezone: '+00:00' // Set timezone to UTC
+});
 
     // Before syncing, disable foreign key checks to avoid circular dependency issues
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
