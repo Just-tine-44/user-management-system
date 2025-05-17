@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: user-management-api
+    runtime: node
+    plan: free
+    rootDir: Node-js-MySQL-BoilerPlate
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
