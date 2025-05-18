@@ -8,14 +8,16 @@ set -e
 cd "$(dirname "$0")"
 
 # Force Node.js to ignore exports field for better compatibility with Angular 10
-export NODE_OPTIONS="--no-warnings --no-deprecation"
+export NODE_OPTIONS="--no-warnings --no-deprecation --max-old-space-size=4096"
 
 # Clean install dependencies to avoid potential conflicts
 rm -rf node_modules
 npm ci
 
-# Explicitly install the compatible compiler-cli version
+# Explicitly install compatible versions required by Angular 10
+npm install --no-save typescript@3.9.7
 npm install --no-save @angular/compiler-cli@10.2.5
+npm install --no-save @angular-devkit/build-angular@0.1002.5
 
 # Build the application with production configuration
 npm run build -- --prod
