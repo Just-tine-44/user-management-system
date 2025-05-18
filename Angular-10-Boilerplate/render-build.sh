@@ -13,5 +13,5 @@ npm install
 # Build the application
 npm run build
 
-# Ensure _redirects file exists in the build output
-cp _redirects dist/angular-signup-verification-boilerplate/
+# No need to manually copy _redirects file anymore
+# The file will be automatically included in the build output
