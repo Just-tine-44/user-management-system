@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: Node-js-MySQL-BoilerPlate
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
