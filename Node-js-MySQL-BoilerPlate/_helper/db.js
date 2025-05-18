@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const config = require('config.json');
 const mysql = require('mysql2/promise');
 const { Sequelize } = require('sequelize');
 
@@ -8,31 +8,22 @@ initialize();
 
 async function initialize() {
     // Create database if it doesn't already exist
-    const { host, port, user, password, database } = 
-        process.env.NODE_ENV === 'production' 
-            ? {
-                host: process.env.DB_HOST || config.database.host,
-                port: process.env.DB_PORT || config.database.port,
-                user: process.env.DB_USER || config.database.user,
-                password: process.env.DB_PASSWORD || config.database.password,
-                database: process.env.DB_NAME || config.database.database
-              }
-            : config.database;
+    const { host, port, user, password, database } = config.database;
+    const connection = await mysql.createConnection({ host, port, user, password });
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
     
-    // Connect to db
-    const sequelize = new Sequelize(database, user, password, {
-        host: host,
-        port: port,
+    // Close the connection after database creation
+    await connection.end();
+
+    // Connect to database with options
+    const sequelize = new Sequelize(database, user, password, { 
         dialect: 'mysql',
+        logging: console.log, // Enable SQL logging for debugging
         dialectOptions: {
-            connectTimeout: 60000
+            dateStrings: true,
+            typeCast: true,
         },
-        pool: {
-            max: 5,
-            min: 0,
-            acquire: 30000,
-            idle: 10000
-        }
+        timezone: '+00:00' // Set timezone to UTC
     });
 
     // Before syncing, disable foreign key checks to avoid circular dependency issues
