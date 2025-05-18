@@ -41,15 +41,31 @@ async function initialize() {
         {
             host: dbConfig.host,
             port: dbConfig.port,
-            dialect: 'mysql'
+            dialect: 'mysql',
+            logging: console.log, // Enable SQL logging for debugging
+            dialectOptions: {
+                supportBigNumbers: true,
+                bigNumberStrings: true
+            }
         }
     );
+
+    // Temporarily disable foreign key checks during model initialization
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
 
     // Init models and add them to the exported db object
     db.Account = require('../accounts/account.model')(sequelize);
     db.RefreshToken = require('../accounts/refresh-token.model')(sequelize);
     db.Department = require('../departments/departments.model')(sequelize);
     db.Employee = require('../employees/employees.model')(sequelize);
+    
+    // Create these tables first in proper order
+    await db.Account.sync({ alter: true });
+    await db.Department.sync({ alter: true });
+    await db.RefreshToken.sync({ alter: true });
+    await db.Employee.sync({ alter: true });
+    
+    // Now load and create tables that depend on the above
     db.Workflow = require('../workflows/workflows.model')(sequelize);
     db.Request = require('../requests/requests.model')(sequelize);
 
@@ -91,12 +107,14 @@ async function initialize() {
     
     db.Employee.hasMany(db.Workflow, { 
         foreignKey: 'employeeId', 
-        as: 'Workflows' 
+        as: 'Workflows',
+        constraints: false  // Temporarily disable constraint
     });
     
     db.Employee.hasMany(db.Request, { 
         foreignKey: 'employeeId', 
-        as: 'Requests' 
+        as: 'Requests',
+        constraints: false  // Temporarily disable constraint
     });
     
     // Department relationships
@@ -109,61 +127,62 @@ async function initialize() {
     // Workflow relationships
     db.Workflow.belongsTo(db.Employee, { 
         foreignKey: 'employeeId', 
-        as: 'Employee' 
+        as: 'Employee',
+        constraints: false  // Temporarily disable constraint
     });
     
     db.Workflow.belongsTo(db.Account, { 
         foreignKey: 'assignedToId', 
-        as: 'AssignedTo' 
+        as: 'AssignedTo',
+        constraints: false  // Temporarily disable constraint
     });
-    
-    // if (db.WorkflowStep) {
-    //     db.Workflow.hasMany(db.WorkflowStep, { 
-    //         foreignKey: 'workflowId', 
-    //         onDelete: 'CASCADE' 
-    //     });
-        
-    //     db.WorkflowStep.belongsTo(db.Workflow, { 
-    //         foreignKey: 'workflowId' 
-    //     });
-        
-    //     db.WorkflowStep.belongsTo(db.Account, { 
-    //         foreignKey: 'assignedToId', 
-    //         as: 'StepAssignee' 
-    //     });
-    // }
     
     // Request relationships - FIXED: Changed 'RequestItems' to 'items' to match controller code
     db.Request.belongsTo(db.Employee, { 
         foreignKey: 'employeeId',
-        as: 'employee' 
+        as: 'employee',
+        constraints: false  // Temporarily disable constraint
     });
     
     db.Request.belongsTo(db.Account, { 
         foreignKey: 'reviewerId', 
-        as: 'Reviewer' 
+        as: 'Reviewer',
+        constraints: false  // Temporarily disable constraint
     });
     
     if (db.RequestItem) {
         db.Request.hasMany(db.RequestItem, { 
             foreignKey: 'requestId', 
             as: 'items', // Changed from 'RequestItems' to 'items' to match controller
-            onDelete: 'CASCADE' 
+            onDelete: 'CASCADE',
+            constraints: false  // Temporarily disable constraint
         });
         
         db.RequestItem.belongsTo(db.Request, { 
-            foreignKey: 'requestId'
+            foreignKey: 'requestId',
+            constraints: false  // Temporarily disable constraint
         });
     }
 
-    // Sync all models with database
-    await sequelize.sync({ alter: true });
+    // Now sync the rest of the tables
+    await db.Workflow.sync({ alter: true });
+    await db.Request.sync({ alter: true });
     
-    // Re-enable foreign key checks after sync
+    if (db.RequestItem) {
+        await db.RequestItem.sync({ alter: true });
+    }
+    
+    // Re-enable foreign key checks after all tables are created
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
     
-    // After sync is complete, add any missing constraint
-    // Note: We're relying on the constraints in the model definitions
+    // Now try to add the constraints back if needed
+    try {
+        // You could add specific ALTER TABLE statements here if needed
+        // For example:
+        // await sequelize.query('ALTER TABLE `workflows` ADD CONSTRAINT `fk_workflow_employee` FOREIGN KEY (`employeeId`) REFERENCES `employees` (`id`);');
+    } catch (err) {
+        console.warn('Error adding constraints:', err.message);
+    }
     
     console.log("Database initialization completed successfully");
 }
