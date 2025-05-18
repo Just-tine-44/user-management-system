@@ -66,25 +66,21 @@ app.use((req, res, next) => {
 
 // Serve static frontend files if in production
 if (process.env.NODE_ENV === 'production') {
-  console.log('Serving static frontend files from /public');
-  app.use(express.static('public'));
-  
-  // Handle client-side routing for Angular
-  app.get('*', (req, res, next) => {
-    // Only serve index.html for non-API requests
-    if (!req.path.startsWith('/accounts') && 
-        !req.path.startsWith('/employees') && 
-        !req.path.startsWith('/departments') &&
-        !req.path.startsWith('/workflows') &&
-        !req.path.startsWith('/requests') &&
-        !req.path.startsWith('/api-docs')) {
-      
-      const indexPath = path.join(__dirname, 'public', 'index.html');
-      console.log(`Serving Angular app from ${indexPath}`);
-      res.sendFile(indexPath);
-    } else {
-      next();
-    }
+  console.log('Running in production mode as API-only backend');
+  // Add a simple root route to confirm API is working
+  app.get('/', (req, res) => {
+    res.json({ 
+      message: 'User Management System API is running',
+      version: '1.0.0',
+      endpoints: [
+        '/accounts', 
+        '/employees',
+        '/departments',
+        '/workflows',
+        '/requests',
+        '/api-docs'
+      ]
+    });
   });
 }
 
