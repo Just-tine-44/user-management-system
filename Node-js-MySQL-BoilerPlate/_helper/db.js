@@ -20,21 +20,65 @@ async function initialize() {
         host: dbConfig.host,
         port: dbConfig.port,
         user: dbConfig.user,
-        database: dbConfig.database
+        database: dbConfig.database,
+        env: process.env.NODE_ENV || 'development'
         // password deliberately not logged
     });
 
     try {
         // Create database if it doesn't already exist
         const { host, port, user, password, database } = dbConfig;
-        const connection = await mysql.createConnection({ host, port, user, password });
-        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
         
-        // Close the connection after database creation
-        await connection.end();
-        console.log('Database created or verified successfully');
+        console.log(`Attempting MySQL connection to ${host}:${port}...`);
+        
+        let connection;
+        try {
+            // Add connection timeout and better error handling
+            connection = await mysql.createConnection({ 
+                host, 
+                port, 
+                user, 
+                password,
+                connectTimeout: 15000 // 15 seconds timeout
+            });
+            console.log('Initial database connection successful');
+            
+            await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
+            console.log('Database created or verified successfully');
+            
+            // Close the connection after database creation
+            await connection.end();
+            console.log('Initial connection closed');
+            
+        } catch (connErr) {
+            console.error('MySQL connection error details:', {
+                message: connErr.message,
+                code: connErr.code,
+                errno: connErr.errno,
+                sqlState: connErr.sqlState,
+                host: host,
+                port: port
+            });
+            
+            // For ECONNREFUSED errors, provide helpful info
+            if (connErr.code === 'ECONNREFUSED') {
+                console.error('Connection refused. This typically means:');
+                console.error('1. The database server is not running');
+                console.error('2. The database server is blocking connections from this IP');
+                console.error('3. The host/port information is incorrect');
+                
+                // In production, provide a way for the app to continue
+                if (process.env.NODE_ENV === 'production') {
+                    console.error('CRITICAL: Cannot connect to database in production.');
+                    console.error('The application will start but database features will not work.');
+                    return; // Exit initialization but let app continue
+                }
+            }
+            throw connErr;
+        }
 
-        // Connect to database with options
+        // Connect to database with Sequelize
+        console.log('Setting up Sequelize connection...');
         const sequelize = new Sequelize(database, user, password, { 
             host: host,
             port: port,
@@ -43,6 +87,7 @@ async function initialize() {
             dialectOptions: {
                 dateStrings: true,
                 typeCast: true,
+                connectTimeout: 30000  // 30 seconds timeout
             },
             timezone: '+00:00', // Set timezone to UTC
             pool: {
@@ -50,17 +95,31 @@ async function initialize() {
                 min: 0,
                 acquire: 30000,
                 idle: 10000
+            },
+            retry: {
+                match: [/Deadlock/i, /SequelizeConnectionError/],
+                max: 3
             }
         });
 
-        // Test connection
-        await sequelize.authenticate();
-        console.log('Database connection established successfully.');
+        // Test Sequelize connection
+        try {
+            await sequelize.authenticate();
+            console.log('Database connection established successfully.');
+        } catch (authError) {
+            console.error('Sequelize authentication error:', authError);
+            if (process.env.NODE_ENV === 'production') {
+                console.error('Failed to connect to database. API functionality will be limited.');
+                return; // Exit initialization but let app continue
+            }
+            throw authError;
+        }
 
         // Before syncing, disable foreign key checks to avoid circular dependency issues
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
 
         // Init models and add them to the exported db object
+        console.log('Initializing models...');
         db.Account = require('../accounts/account.model')(sequelize);
         db.RefreshToken = require('../accounts/refresh-token.model')(sequelize);
         db.Department = require('../departments/departments.model')(sequelize);
@@ -77,6 +136,7 @@ async function initialize() {
         }
 
         // Define relationships - note that model names must match what's used in the models
+        console.log('Setting up model relationships...');
         
         // Account (User) relationships
         db.Account.hasMany(db.RefreshToken, { 
@@ -155,8 +215,9 @@ async function initialize() {
         }
 
         // Sync all models with database - use force:true only in development!
+        console.log('Syncing database models...');
         const syncOptions = { 
-            alter: true,
+            alter: process.env.NODE_ENV !== 'production',
             // force: process.env.NODE_ENV === 'development' && process.env.DB_FORCE_SYNC === 'true'
         };
         
@@ -181,10 +242,19 @@ async function initialize() {
         console.log("Database initialization completed successfully");
     } catch (err) {
         console.error('Database initialization error:', err);
-        // Don't just hide the error, let it crash the app if critical
+        
+        // In production, log the error but allow the app to start
         if (process.env.NODE_ENV === 'production') {
-            console.error('Fatal database error in production. Check your connection settings.');
+            console.error('Database error in production. API functionality will be limited.');
+            console.error('Error details:', {
+                message: err.message,
+                code: err.code,
+                stack: err.stack
+            });
+            // Don't throw in production to allow app to start without DB
+        } else {
+            // In development, throw the error to stop the app
+            throw err;
         }
-        throw err;
     }
 }
