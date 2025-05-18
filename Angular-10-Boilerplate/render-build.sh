@@ -4,3 +4,5 @@ set -o errexit
 
 npm install
 npm run build
+
+chmod +x render-build.sh
