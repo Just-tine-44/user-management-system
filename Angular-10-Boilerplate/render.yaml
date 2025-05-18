@@ -3,7 +3,7 @@ services:
     name: user-management-frontend
     env: static
     buildCommand: npm install --legacy-peer-deps && npm run build -- --configuration production
-    staticPublishPath: ./dist/angular-10-boilerplate
+    staticPublishPath: ./dist/angular-signup-verification-boilerplate
     headers:
       - path: /*
         name: Cache-Control
