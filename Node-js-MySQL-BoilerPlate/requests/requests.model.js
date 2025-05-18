@@ -50,7 +50,7 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
-                model: 'Accounts', // Changed from 'Users' to 'Accounts'
+                model: 'accounts', // Changed from 'Users' to 'Accounts'
                 key: 'id'
             }
         },
@@ -109,7 +109,7 @@ module.exports.RequestItem = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Requests',
+                model: 'requests',
                 key: 'id'
             }
         }
