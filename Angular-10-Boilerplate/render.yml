@@ -1,0 +1,11 @@
+services:
+  - name: paraiso-frontend
+    type: web
+    env: static
+    rootDir: Angular-10-Boilerplate
+    buildCommand: npm install && npm run build -- --configuration production
+    staticPublishPath: dist/angular-signup-verification-boilerplate/browser
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-store
