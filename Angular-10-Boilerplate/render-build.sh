@@ -14,12 +14,5 @@ export NODE_OPTIONS="--no-warnings --no-deprecation --max-old-space-size=4096"
 rm -rf node_modules
 npm ci
 
-# Create a symlink to ensure @environments points to src/environments
-mkdir -p node_modules/@environments
-ln -sf ../../src/environments node_modules/@environments/environment
-
 # Build the application with production configuration
 npm run build
-
-# No need to manually copy _redirects file anymore
-# The file will be automatically included in the build output
