@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://paraiso-api.onrender.com'
+    apiUrl: 'https://paraiso-backend-api.onrender.com'
   };
   
