@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({ templateUrl: 'login.component.html' })
 export class LoginComponent implements OnInit {
-    form: UntypedFormGroup;
+    form: FormGroup;
     loading = false;
     submitted = false;
+    returnUrl: string;
 
     constructor(
-        private formBuilder: UntypedFormBuilder,
+        private formBuilder: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
@@ -24,6 +25,9 @@ export class LoginComponent implements OnInit {
             email: ['', [Validators.required, Validators.email]],
             password: ['', Validators.required]
         });
+
+        // get return url from route parameters or default to '/'
+        this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }
 
     // convenience getter for easy access to form fields
@@ -44,15 +48,8 @@ export class LoginComponent implements OnInit {
         this.accountService.login(this.f.email.value, this.f.password.value)
             .pipe(first())
             .subscribe({
-                next: account => {
-                    const isActive = JSON.parse(localStorage.getItem(`account_${account.id}`) || 'true');
-                    if (!isActive && account.role !== 'Admin') {
-                        this.alertService.error('Your account has been deactivated. Please contact the administrator.');
-                        this.loading = false;
-                    } else {
-                        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-                        this.router.navigateByUrl(returnUrl);
-                    }
+                next: () => {
+                    this.router.navigate([this.returnUrl]);
                 },
                 error: error => {
                     this.alertService.error(error);

@@ -1,4 +1,3 @@
-user-management-system\Angular-10-Boilerplate\render-build.sh
 #!/usr/bin/env bash
 # Build script for Render
 
@@ -14,6 +13,10 @@ export NODE_OPTIONS="--no-warnings --no-deprecation --max-old-space-size=4096"
 # Clean install dependencies to avoid potential conflicts
 rm -rf node_modules
 npm ci
+
+# Create a symlink to ensure @environments points to src/environments
+mkdir -p node_modules/@environments
+ln -sf ../../src/environments node_modules/@environments/environment
 
 # Build the application with production configuration
 npm run build
