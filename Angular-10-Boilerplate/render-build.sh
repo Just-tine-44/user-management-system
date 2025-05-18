@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# exit on error
-set -o errexit
+# Build script for Render
 
-# Remove package-lock to ensure clean install
-rm -f package-lock.json
+# Exit on error
+set -e
 
-# Use a Node version compatible with your dependencies
-export NODE_OPTIONS=--max_old_space_size=4096
-export NODE_VERSION=18.17.0
-npm install --legacy-peer-deps --force
+# Navigate to the project directory
+cd "$(dirname "$0")"
+
+# Install dependencies
+npm install
+
+# Build the application
 npm run build
+
+# Ensure _redirects file exists in the build output
+cp _redirects dist/angular-signup-verification-boilerplate/

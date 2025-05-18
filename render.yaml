@@ -33,10 +33,9 @@ services:
   - type: web
     name: user-management-frontend
     runtime: static
-    plan: free
-    rootDir: Angular-10-Boilerplate
-    buildCommand: chmod +x ./render-build.sh && ./render-build.sh
-    staticPublishPath: ./dist/angular-10-boilerplate
+    buildCommand: ./render-build.sh
+    staticPublishPath: ./dist/angular-signup-verification-boilerplate
+    pullRequestPreviewsEnabled: false
     routes:
       - type: rewrite
         source: /*
