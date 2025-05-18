@@ -1,0 +1,13 @@
+services:
+  - name: paraiso-backend-api
+    type: web
+    env: node
+    plan: free
+    rootDir: Node-js-MySQL-BoilerPlate
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: "*,http://localhost:4200"
