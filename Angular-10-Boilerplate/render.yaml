@@ -2,8 +2,13 @@ services:
   - type: web
     name: user-management-frontend
     env: static
-    buildCommand: npm install --legacy-peer-deps && npm run build
-    staticPublishPath: ./dist/angular-10-boilerplate
-    envVars:
-      - key: NODE_VERSION
-        value: 18.15.0
+    buildCommand: npm install --legacy-peer-deps && npm run build -- --configuration production
+    staticPublishPath: ./dist/angular-10-boilerplate/browser
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-store
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
