@@ -16,7 +16,13 @@ async function initialize() {
     await connection.end();
 
     // Connect to database with options
-    const sequelize = new Sequelize(database, user, password, { 
+
+const sequelize = new Sequelize(
+    'u875409848_juarez',
+    'u875409848_juarez',
+    '9T2Z5$3UKkgSYzE',
+    {
+        host: '153.92.15.31',
         dialect: 'mysql',
         logging: console.log, // Enable SQL logging for debugging
         dialectOptions: {
@@ -24,7 +30,8 @@ async function initialize() {
             typeCast: true,
         },
         timezone: '+00:00' // Set timezone to UTC
-    });
+    }
+);
 
     // Before syncing, disable foreign key checks to avoid circular dependency issues
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: user-management-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist/angular-10-boilerplate
+    envVars:
+      - key: NODE_VERSION
+        value: 18.15.0

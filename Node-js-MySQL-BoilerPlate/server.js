@@ -10,8 +10,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// allow cors requests from any origin and with credentials
-app.use(cors({ origin: (origin, callback) => callback(null, true), credentials: true }));
+app.use(cors({ 
+  origin: ['https://juarez-final-deployment-project.onrender.com', 'http://localhost:4200'],
+  credentials: true 
+}));
 
 // api routes
 app.use('/accounts', require('./accounts/accounts.controller'));
