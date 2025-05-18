@@ -2,13 +2,13 @@
   "name": "angular-signup-verification-boilerplate",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve --open",
-    "build": "ng build --configuration production",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
-  },
+  "ng": "ng",
+  "start": "ng serve --open",
+  "build": "ng build --configuration production",
+  "test": "ng test",
+  "lint": "ng lint",
+  "e2e": "ng e2e"
+ },
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.3.2",

@@ -29,13 +29,13 @@ services:
         source: /api/*
         destination: /*
 
-  # Frontend web app
+ # Frontend web app
   - type: web
     name: user-management-frontend
     runtime: static
     plan: free
     rootDir: Angular-10-Boilerplate
-    buildCommand: npm install && npm run build
+    buildCommand: chmod +x ./render-build.sh && ./render-build.sh
     staticPublishPath: ./dist/angular-10-boilerplate
     routes:
       - type: rewrite
