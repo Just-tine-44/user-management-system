@@ -15,9 +15,10 @@ rm -rf node_modules
 npm ci
 
 # Explicitly install compatible versions required by Angular 10
+# Using exact known-available versions
 npm install --no-save typescript@3.9.7
 npm install --no-save @angular/compiler-cli@10.2.5
-npm install --no-save @angular-devkit/build-angular@0.1002.5
+npm install --no-save @angular-devkit/build-angular@0.1002.0
 
 # Build the application with production configuration
 npm run build -- --prod
