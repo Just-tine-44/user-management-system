@@ -1,5 +1,5 @@
 services:
-  - name: cabunilas-api
+  - name: cabunilas-backend-api
     type: web
     env: node
     plan: free
@@ -9,3 +9,5 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: ALLOWED_ORIGINS
+        value: "*,http://localhost:4200"
