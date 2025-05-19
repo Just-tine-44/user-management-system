@@ -66,26 +66,76 @@ app.use((req, res, next) => {
 
 // Serve static frontend files if in production
 if (process.env.NODE_ENV === 'production') {
-  console.log('Serving static frontend files from /public');
-  app.use(express.static('public'));
+  console.log('Serving static frontend files');
   
-  // Handle client-side routing for Angular
-  app.get('*', (req, res, next) => {
-    // Only serve index.html for non-API requests
-    if (!req.path.startsWith('/accounts') && 
-        !req.path.startsWith('/employees') && 
-        !req.path.startsWith('/departments') &&
-        !req.path.startsWith('/workflows') &&
-        !req.path.startsWith('/requests') &&
-        !req.path.startsWith('/api-docs')) {
-      
-      const indexPath = path.join(__dirname, 'public', 'index.html');
-      console.log(`Serving Angular app from ${indexPath}`);
-      res.sendFile(indexPath);
-    } else {
-      next();
+  // Try multiple possible static directories
+  const possiblePublicDirs = [
+    path.join(__dirname, 'public'),
+    path.join(__dirname, '../public'),
+    path.join(__dirname, '../../public'),
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), '../public')
+  ];
+  
+  // Find the first directory that exists
+  const fs = require('fs');
+  let publicDir = null;
+  
+  for (const dir of possiblePublicDirs) {
+    try {
+      if (fs.existsSync(dir) && fs.existsSync(path.join(dir, 'index.html'))) {
+        publicDir = dir;
+        console.log(`Found valid public directory with index.html at: ${publicDir}`);
+        break;
+      }
+    } catch (err) {
+      console.log(`Directory check error: ${err.message}`);
     }
-  });
+  }
+  
+  if (publicDir) {
+    app.use(express.static(publicDir));
+    
+    // Handle client-side routing for Angular
+    app.get('*', (req, res, next) => {
+      // Only serve index.html for non-API requests
+      if (!req.path.startsWith('/accounts') && 
+          !req.path.startsWith('/employees') && 
+          !req.path.startsWith('/departments') &&
+          !req.path.startsWith('/workflows') &&
+          !req.path.startsWith('/requests') &&
+          !req.path.startsWith('/api-docs')) {
+        
+        const indexPath = path.join(publicDir, 'index.html');
+        console.log(`Serving Angular app from ${indexPath}`);
+        res.sendFile(indexPath, err => {
+          if (err) {
+            console.error(`Error sending index.html: ${err.message}`);
+            res.status(500).send('Error loading application. Please try again later.');
+          }
+        });
+      } else {
+        next();
+      }
+    });
+  } else {
+    console.error('No valid public directory with index.html found!');
+    console.log('Available directories:', possiblePublicDirs);
+    
+    // Fallback route to indicate frontend is not available
+    app.get('*', (req, res, next) => {
+      if (!req.path.startsWith('/accounts') && 
+          !req.path.startsWith('/employees') && 
+          !req.path.startsWith('/departments') &&
+          !req.path.startsWith('/workflows') &&
+          !req.path.startsWith('/requests') &&
+          !req.path.startsWith('/api-docs')) {
+        res.status(200).send('API server is running, but frontend files are not available.');
+      } else {
+        next();
+      }
+    });
+  }
 }
 
 // Global error handler
