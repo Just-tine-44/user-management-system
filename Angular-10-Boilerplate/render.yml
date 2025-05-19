@@ -1,5 +1,5 @@
 services:
-  - name: paraiso-frontend
+  - name: juarez-frontend
     type: web
     env: static
     rootDir: Angular-10-Boilerplate

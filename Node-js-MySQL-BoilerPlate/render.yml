@@ -1,5 +1,5 @@
 services:
-  - name: paraiso-api
+  - name: juarez-final-project
     type: web
     env: node
     plan: free
