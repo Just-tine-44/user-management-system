@@ -16,7 +16,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // Define allowed origins from env or defaults
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:4200', 'https://paraiso-frontend.onrender.com'];
+  : ['http://localhost:4200', 'https://cabunilas-frontend.onrender.com'];
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
