@@ -155,4 +155,4 @@ Each team member will be evaluated individually based on:
  -  Fake backend (included)
  - Node.js + MySQL (configurable)
 - Authentication: JWT tokens with refresh mechanism
-- Deployment Options: Any static web host or containerized environment
+- Deployment Options: Any static web host or containerized environment.
