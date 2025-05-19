@@ -77,8 +77,7 @@ if (process.env.NODE_ENV === 'production') {
         '/employees',
         '/departments',
         '/workflows',
-        '/requests',
-        '/api-docs'
+        '/requests'
       ]
     });
   });
