@@ -3,8 +3,8 @@
       "host": "153.92.15.31",
       "port": 3306,
       "user": "u875409848_juarez",
-      "password": "",
-      "database": "node-mysql-signup-verification-api"
+      "password": "9T2Z5$3UKkgSYzE",
+      "database": "u875409848_juarez"
     },
     "secret": "d26055b6ae384e818696049abe297e91",
     "emailFrom": "info@node-mysql-signup-verification-api.com",
